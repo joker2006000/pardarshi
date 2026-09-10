@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARDARSHI - Link Contributions with Transparency</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ========================================================
+           1. BASE LAYOUT & VARIABLES (From your original code)
+           ======================================================== */
+        :root {
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #fefefe;
+            --main-bg: #f3f4f6;
+            --card-bg: #ffffff;
+            /* Changed slightly to pure white for SaaS look */
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #0d9488;
+            /* Teal accent */
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #f9fafb;
+            --border-color: #e2e8f0;
+            --transition: all 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --sidebar-bg: #0f172a;
+                --sidebar-hover: #1e293b;
+                --main-bg: #020617;
+                --card-bg: #1e293b;
+                --text-dark: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--main-bg);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- DESKTOP SIDEBAR --- */
+        .sidebar {
+            width: 80px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            transition: var(--transition);
+            z-index: 100;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar:hover {
+            width: 240px;
+            align-items: flex-start;
+        }
+
+        .sidebar-logo {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100px;
+        }
+
+        .logo-small {
+            width: 60px;
+            height: auto;
+            display: block;
+        }
+
+        .logo-large {
+            width: 200px;
+            height: auto;
+            display: none;
+        }
+
+        .sidebar:hover .logo-small {
+            display: none;
+        }
+
+        .sidebar:hover .logo-large {
+            display: block;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            margin: 0 10px;
+            border-radius: 10px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .nav-item span {
+            display: none;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .nav-item span {
+            display: inline;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--primary);
+            background-color: var(--sidebar-hover);
+        }
+
+        .add-btn-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: auto;
+        }
+
+        .add-btn {
+            background-color: var(--sidebar-hover);
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .account-section {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: var(--transition);
+            width: calc(100% - 20px);
+            margin: 0 10px;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .account-section:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .username {
+            color: var(--text-dark);
+            margin-left: 10px;
+            display: none;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .sidebar:hover .username {
+            display: block;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+        }
+
+        .top-header {
+            height: 80px;
+            flex-shrink: 0;
+            /* Ensures topbar NEVER shrinks or moves on scroll */
+            background-color: var(--main-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 10;
+            transition: background-color 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-logo,
+        .hamburger-menu {
+            display: none;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            width: 400px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px 12px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-bar::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-popup {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: none;
+            z-index: 50;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-popup.active {
+            display: block;
+        }
+
+        .search-popup h4 {
+            margin-bottom: 10px;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Google Translate */
+        .goog-te-gadget-simple {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 20px !important;
+            padding: 6px 12px !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .goog-te-gadget-simple span {
+            color: var(--text-dark) !important;
+        }
+
+        .goog-te-banner-frame {
+            display: none !important;
+        }
+
+        body {
+            top: 0px !important;
+        }
+
+        /* --- MOBILE NAV & DRAWER --- */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 250px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            z-index: 200;
+            transition: var(--transition);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .mobile-drawer.open {
+            right: 0;
+        }
+
+        .drawer-close {
+            align-self: flex-end;
+            font-size: 24px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-wrapper {
+                padding-bottom: 70px;
+            }
+
+            .top-header {
+                padding: 0 15px;
+                height: 70px;
+                gap: 15px;
+            }
+
+            .header-title {
+                display: none;
+            }
+
+            .mobile-logo {
+                display: block;
+                flex-shrink: 0;
+            }
+
+            .mobile-logo img {
+                width: 150px;
+                height: auto;
+            }
+
+            .search-container {
+                width: 40px;
+                margin-left: auto;
+                justify-content: flex-end;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .search-container.mobile-expanded {
+                flex-grow: 1;
+                width: auto;
+            }
+
+            .search-bar {
+                width: 0;
+                padding: 0;
+                opacity: 0;
+                border-color: transparent;
+                pointer-events: none;
+            }
+
+            .search-container.mobile-expanded .search-bar {
+                width: 100%;
+                padding: 10px 20px 10px 40px;
+                opacity: 1;
+                border-color: var(--border-color);
+                pointer-events: auto;
+            }
+
+            .search-icon {
+                position: absolute;
+                right: 12px;
+                left: auto;
+                font-size: 18px;
+                pointer-events: auto;
+                cursor: pointer;
+                color: var(--text-dark);
+                transition: left 0.3s;
+            }
+
+            .search-container.mobile-expanded .search-icon {
+                right: auto;
+                left: 15px;
+                color: var(--text-muted);
+            }
+
+            .desktop-translate {
+                display: none !important;
+            }
+
+            .header-actions {
+                flex-shrink: 0;
+            }
+
+            .hamburger-menu {
+                display: block;
+                font-size: 24px;
+                cursor: pointer;
+                color: var(--text-dark);
+            }
+
+            /* Bottom Nav with updated icons */
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 70px;
+                background-color: var(--card-bg);
+                border-top: 1px solid var(--border-color);
+                justify-content: space-around;
+                align-items: center;
+                z-index: 100;
+            }
+
+            .bottom-nav-item {
+                color: var(--text-muted);
+                font-size: 20px;
+                text-decoration: none;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .bottom-nav-item.active {
+                color: var(--primary);
+            }
+
+            .mobile-add-btn {
+                background-color: var(--primary);
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 15px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 24px;
+                border: none;
+                margin-top: -20px;
+                box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+                cursor: pointer;
+            }
+        }
+
+        /* ========================================================
+           2. PARDARSHI LANDING PAGE CSS (Scoped to content-area)
+           ======================================================== */
+
+        .content-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Utility Classes */
+        .pd-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .pd-text-center {
+            text-align: center;
+        }
+
+        .pd-mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .pd-mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .pd-mb-8 {
+            margin-bottom: 2rem;
+        }
+
+        .pd-mb-12 {
+            margin-bottom: 3rem;
+        }
+
+
+        .pd-h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            color: var(--text-dark);
+        }
+
+        .pd-h2 {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .pd-h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .pd-p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .pd-text-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Buttons */
+        .pd-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .pd-btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pd-btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+        }
+
+        .pd-btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .pd-btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .pd-btn-secondary:hover {
+            background-color: var(--main-bg);
+        }
+
+        .pd-btn-ghost {
+            background-color: transparent;
+            color: var(--primary);
+        }
+
+        .pd-btn-ghost:hover {
+            background-color: #eff6ff;
+        }
+
+        /* Grids */
+        .pd-grid-6 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .pd-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .pd-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            align-items: center;
+        }
+
+        /* Cards */
+        .pd-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .pd-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .pd-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background-color: #eff6ff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Visual Workflow Hero */
+        .pd-workflow-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 30px;
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .pd-workflow-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 10px;
+            width: 100px;
+        }
+
+        .pd-workflow-icon {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .pd-workflow-arrow {
+            color: var(--border-color);
+            font-size: 20px;
+        }
+
+        /* Mockup UI */
+        .pd-mockup {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .pd-mockup-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pd-mockup-body {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pd-input-fake {
+            height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--main-bg);
+            width: 100%;
+        }
+
+        .pd-upload-fake {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Dashboard specific UI */
+        .pd-dash-stat {
+            background: var(--main-bg);
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .pd-dash-stat h5 {
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .pd-dash-stat p {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .pd-list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pd-list-item:last-child {
+            border-bottom: none;
+        }
+
+        /* WhatsApp Notification */
+        .pd-wa-card {
+            background: #EFEAE2;
+            padding: 20px;
+            border-radius: 24px;
+            max-width: 350px;
+            margin: auto;
+        }
+
+        .pd-wa-msg {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px 12px 12px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Mobile specific landing page overrides */
+        @media (max-width: 768px) {
+            .pd-workflow-arrow {
+                display: none;
+            }
+
+            .pd-workflow-item {
+                width: 45%;
+            }
+
+            .pd-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="sidebar">
+        <!-- IMAGE LOGOS -->
+        <div class="sidebar-logo">
+            <img src="logo-1.png" alt="Logo" class="logo-small">
+            <img src="logo.png" alt="Full Logo" class="logo-large">
+        </div>
+
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item active">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <!-- Updated Icons for PARDARSHI -->
+            <a href="forms.html" class="nav-item">
+                <i class="fa-solid fa-file-lines"></i>
+                <span>Forms</span>
+            </a>
+            <a href="transactions.html" class="nav-item">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Transactions</span>
+            </a>
+            <!-- Customer Support Added -->
+            <a href="support.html" class="nav-item">
+                <i class="fa-solid fa-headset"></i>
+                <span>Support</span>
+            </a>
+        </nav>
+
+        <div class="add-btn-container">
+            <button class="add-btn"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <a href="account.html" class="account-section">
+            <img src="https://ui-avatars.com/api/?name=Alan&background=3b82f6&color=fff" alt="Profile"
+                class="profile-pic">
+            <span class="username">Alan Smith</span>
+        </a>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="main-wrapper">
+
+        <!-- Top Header (Fixed during scroll) -->
+        <header class="top-header">
+            <div class="mobile-logo">
+                <img src="logo.png" alt="Logo">
+            </div>
+
+            <div class="header-title">
+                Good Morning, Alan
+            </div>
+
+            <div class="search-container" id="searchContainer">
+                <i class="fa-solid fa-magnifying-glass search-icon" id="searchIcon"></i>
+                <input type="text" class="search-bar" id="searchInput" placeholder="Search for data / people...">
+
+                <!-- Search Popup -->
+                <div class="search-popup" id="searchPopup">
+                    <h4>Recent Searches</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">
+                        <i class="fa-solid fa-person-digging"></i> Search engine currently under development...
+                    </p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <!-- AUTOMATIC GOOGLE TRANSLATE WIDGET (Hidden on Mobile) -->
+                <div id="google_translate_element" class="desktop-translate"></div>
+
+                <i class="fa-solid fa-bars hamburger-menu" onclick="toggleMobileDrawer()"></i>
+            </div>
+        </header>
+
+        <!-- Area where data loads -->
+        <div class="content-area">
+
+            <!-- HERO SECTION -->
+            <section class="pd-container pd-text-center">
+                <div class="pd-badge">
+                </div>
+                
+                <div class="hero-pic-logo">
+                    <img src="logo.png" alt="Logoo">
+                </div>
+
+                <h1 class="pd-h1 pd-mb-4">Link Contributions with <span class="pd-text-gradient">Transparency</span>
+                </h1>
+                <p class="pd-p">PARDARSHI helps organisations create contribution forms, collect payments, manage
+                    records and share transparent financial information with contributors — all from one platform.</p>
+
+                <div class="pd-btn-group">
+                    <button class="pd-btn pd-btn-primary">Create Your Organisation</button>
+                    <button class="pd-btn pd-btn-secondary">Explore How It Works</button>
+                    <button class="pd-btn pd-btn-ghost"><i class="fa-solid fa-qrcode"></i> Scan / Open QR</button>
+                </div>
+
+                <!-- Visual Workflow -->
+                <div class="pd-workflow-box">
+                    <div class="pd-workflow-item"><i class="fa-solid fa-building pd-workflow-icon"></i><span
+                            style="font-weight:600; font-size:14px; color:var(--text-dark);">Organisation</span></div>
+                    <i class="fa-solid fa-arrow-right pd-workflow-arrow"></i>
+                    <div class="pd-workflow-item"><i class="fa-solid fa-file-lines pd-workflow-icon"
+                            style="color:var(--secondary);"></i><span
+                            style="font-weight:600; font-size:14px; color:var(--text-dark);">Create Form</span></div>
+                    <i class="fa-solid fa-arrow-right pd-workflow-arrow"></i>
+                    <div class="pd-workflow-item"><i class="fa-solid fa-qrcode pd-workflow-icon"></i><span
+                            style="font-weight:600; font-size:14px; color:var(--text-dark);">Share Link</span></div>
+                    <i class="fa-solid fa-arrow-right pd-workflow-arrow"></i>
+                    <div class="pd-workflow-item"><i class="fa-solid fa-wallet pd-workflow-icon"
+                            style="color:var(--secondary);"></i><span
+                            style="font-weight:600; font-size:14px; color:var(--text-dark);">Contribution</span></div>
+                    <i class="fa-solid fa-arrow-right pd-workflow-arrow"></i>
+                    <div class="pd-workflow-item"><i class="fa-solid fa-shield-halved pd-workflow-icon"></i><span
+                            style="font-weight:600; font-size:14px; color:var(--text-dark);">Transparency</span></div>
+                </div>
+            </section>
+
+            <!-- SECTION 1: HOW PARDARSHI WORKS -->
+            <section
+                style="background-color: var(--card-bg); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                <div class="pd-container">
+                    <div class="pd-text-center pd-mb-12">
+                        <h2 class="pd-h2">How PARDARSHI Works</h2>
+                        <p class="pd-p">From creating a form to showing transparent records, everything stays connected.
+                        </p>
+                    </div>
+
+                    <div class="pd-grid-6">
+                        <div class="pd-card">
+                            <div class="pd-icon-box"><i class="fa-solid fa-building"></i></div>
+                            <h3 class="pd-h3">01 — Create Your Organisation</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6;">Set up your organisation profile and
+                                add the information contributors need.</p>
+                        </div>
+                        <div class="pd-card">
+                            <div class="pd-icon-box" style="color:var(--secondary);"><i
+                                    class="fa-solid fa-file-lines"></i></div>
+                            <h3 class="pd-h3">02 — Create Your Form</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6;">Create your own contribution
+                                registration form without coding. Add required fields like name and mobile number.</p>
+                        </div>
+                        <div class="pd-card">
+                            <div class="pd-icon-box"><i class="fa-solid fa-pen-to-square"></i></div>
+                            <h3 class="pd-h3">03 — Customize & Publish</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6;">Add your logo, images, information
+                                and documents, preview the page and publish it when you're ready.</p>
+                        </div>
+                        <div class="pd-card">
+                            <div class="pd-icon-box" style="color:var(--secondary);"><i class="fa-solid fa-qrcode"></i>
+                            </div>
+                            <h3 class="pd-h3">04 — Share With QR & Link</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6;">Once published, PARDARSHI generates a
+                                unique link and QR code that can be shared or printed.</p>
+                        </div>
+                        <div class="pd-card">
+                            <div class="pd-icon-box"><i class="fa-solid fa-wallet"></i></div>
+                            <h3 class="pd-h3">05 — Receive Contributions</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6;">Contributors open the page, provide
+                                their information and complete their contribution safely.</p>
+                        </div>
+                        <div class="pd-card">
+                            <div class="pd-icon-box" style="color:var(--secondary);"><i
+                                    class="fa-solid fa-chart-pie"></i></div>
+                            <h3 class="pd-h3">06 — Keep Transparent</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6;">Contributors can view contribution
+                                records, expenses, documents and proofs through your account.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: CREATE FORMS -->
+            <section class="pd-container">
+                <div class="pd-text-center pd-mb-12">
+                    <h2 class="pd-h2">Create Your Own Contribution Form</h2>
+                    <p class="pd-p">Build a professional organisation page in minutes — no coding required.</p>
+                </div>
+
+                <div class="pd-grid-2">
+                    <!-- UI Mockup -->
+                    <div class="pd-mockup">
+                        <div class="pd-mockup-header">
+                            <span style="font-weight:600;">Form Builder</span>
+                            <div style="display:flex; gap:10px;">
+                                <span
+                                    style="background:var(--main-bg); padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600;">Preview</span>
+                                <span
+                                    style="background:var(--primary); color:#fff; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600;">Publish</span>
+                            </div>
+                        </div>
+                        <div class="pd-mockup-body">
+                            <div class="pd-upload-fake"><i class="fa-solid fa-image"></i> Upload / Change Logo</div>
+                            <div>
+                                <label
+                                    style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:5px; display:block;">Organisation
+                                    Name</label>
+                                <div class="pd-input-fake"></div>
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:5px; display:block;">Contributor
+                                    Name *</label>
+                                <div class="pd-input-fake"></div>
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:5px; display:block;">Mobile
+                                    Number *</label>
+                                <div class="pd-input-fake"></div>
+                            </div>
+                            <div style="color:var(--primary); font-size:14px; font-weight:600; cursor:pointer;">+ Add
+                                Question</div>
+
+                            <div style="border-top:1px solid var(--border-color); padding-top:15px; margin-top:10px;">
+                                <label
+                                    style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:10px; display:block;">Payment
+                                    Methods</label>
+                                <div style="display:flex; gap:15px; font-size:14px; font-weight:500;">
+                                    <span style="color:var(--secondary);"><i class="fa-solid fa-square-check"></i>
+                                        Online Payment</span>
+                                    <span style="color:var(--secondary);"><i class="fa-solid fa-square-check"></i>
+                                        UPI</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Explanations -->
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <div>
+                            <h4 class="pd-h3" style="margin-bottom:4px;">Add your information</h4>
+                            <p style="color:var(--text-muted);">Add organisation details, address, email and
+                                description.</p>
+                        </div>
+                        <div>
+                            <h4 class="pd-h3" style="margin-bottom:4px;">Add your own questions</h4>
+                            <p style="color:var(--text-muted);">Create additional fields according to your
+                                organisation's requirements.</p>
+                        </div>
+                        <div>
+                            <h4 class="pd-h3" style="margin-bottom:4px;">Customize the appearance</h4>
+                            <p style="color:var(--text-muted);">Upload/change your organisation logo, images and page
+                                information.</p>
+                        </div>
+                        <div>
+                            <h4 class="pd-h3" style="margin-bottom:4px;">Add payment details & Documents</h4>
+                            <p style="color:var(--text-muted);">Configure the payment methods and upload important
+                                supporting documents.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3 & 4: SHARE & EASY EXPERIENCE -->
+            <section
+                style="background-color: var(--card-bg); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                <div class="pd-container pd-grid-2">
+
+                    <!-- QR Section -->
+                    <div>
+                        <h2 class="pd-h2">One Form. One Link. One QR Code.</h2>
+                        <p class="pd-p" style="margin-left:0; margin-bottom:30px;">After publishing your form, PARDARSHI
+                            automatically creates a unique public link and QR code for your organisation to place on
+                            posters, notices, and WhatsApp.</p>
+
+                        <div
+                            style="background:var(--main-bg); padding:30px; border-radius:24px; display:inline-block; border:1px solid var(--border-color); text-align:center;">
+                            <div
+                                style="background:#fff; width:180px; height:180px; border-radius:16px; margin:0 auto 15px auto; display:flex; align-items:center; justify-content:center; border:2px solid var(--border-color);">
+                                <i class="fa-solid fa-qrcode" style="font-size:80px; color:var(--text-muted);"></i>
+                            </div>
+                            <p style="font-weight:700; margin-bottom:15px; color:var(--text-dark);">Scan to contribute
+                            </p>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                <button class="pd-btn-secondary"
+                                    style="padding:10px; border-radius:8px; border:1px solid var(--border-color); cursor:pointer;"><i
+                                        class="fa-solid fa-download"></i> Download</button>
+                                <button class="pd-btn-secondary"
+                                    style="padding:10px; border-radius:8px; border:1px solid var(--border-color); cursor:pointer;"><i
+                                        class="fa-solid fa-share-nodes"></i> Share</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flow Section -->
+                    <div>
+                        <h2 class="pd-h2">Easy for Contributors</h2>
+                        <p class="pd-p" style="margin-left:0; margin-bottom:30px;">The contributor doesn't need to deal
+                            with complicated forms. The process is straightforward.</p>
+
+                        <div style="display:flex; flex-direction:column; gap:15px;">
+                            <div
+                                style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; align-items:center; gap:15px; border:1px solid var(--border-color);">
+                                <div
+                                    style="width:40px; height:40px; background:#eff6ff; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <span style="font-weight:600; color:var(--text-dark);">Scan QR or Open Link</span>
+                            </div>
+                            <div
+                                style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; align-items:center; gap:15px; border:1px solid var(--border-color);">
+                                <div
+                                    style="width:40px; height:40px; background:#eff6ff; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <span style="font-weight:600; color:var(--text-dark);">Enter Name & Mobile</span>
+                            </div>
+                            <div
+                                style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; align-items:center; gap:15px; border:1px solid var(--border-color);">
+                                <div
+                                    style="width:40px; height:40px; background:#eff6ff; color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                                <span style="font-weight:600; color:var(--text-dark);">Choose Contribution & Pay</span>
+                            </div>
+                            <div
+                                style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; align-items:center; gap:15px; border:1px solid var(--border-color);">
+                                <div
+                                    style="width:40px; height:40px; background:#f0fdf4; color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <span style="font-weight:600; color:var(--text-dark);">Payment Confirmed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 5 & 6: RECORDS & WHATSAPP -->
+            <section class="pd-container pd-grid-2">
+
+                <!-- Records -->
+                <div>
+                    <h2 class="pd-h2">Every Contribution Stays Connected</h2>
+                    <p class="pd-p" style="margin-left:0; margin-bottom:30px;">When a payment is completed through an
+                        integration, PARDARSHI connects the contributor, organisation and transaction record.</p>
+
+                    <div
+                        style="background:var(--card-bg); border-top: 4px solid var(--secondary); border-radius:16px; padding:25px; box-shadow:0 10px 30px rgba(0,0,0,0.05); border-left:1px solid var(--border-color); border-right:1px solid var(--border-color); border-bottom:1px solid var(--border-color);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                            <i class="fa-solid fa-circle-check" style="color:var(--secondary); font-size:24px;"></i>
+                            <h4 style="font-weight:700; font-size:18px;">Contribution Successful</h4>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                            <div>
+                                <p style="color:var(--text-muted); font-size:13px; margin-bottom:4px;">Amount</p>
+                                <p style="font-weight:700; font-size:18px;">₹500</p>
+                            </div>
+                            <div>
+                                <p style="color:var(--text-muted); font-size:13px; margin-bottom:4px;">Contributor</p>
+                                <p style="font-weight:600;">Rahul</p>
+                            </div>
+                            <div>
+                                <p style="color:var(--text-muted); font-size:13px; margin-bottom:4px;">Organisation</p>
+                                <p style="font-weight:600;">ABC Foundation</p>
+                            </div>
+                            <div>
+                                <p style="color:var(--text-muted); font-size:13px; margin-bottom:4px;">Transaction ID
+                                </p>
+                                <p style="font-family:monospace; color:var(--text-muted);">#PSR102938</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WhatsApp -->
+                <div>
+                    <h2 class="pd-h2">Keep Contributors Updated on WhatsApp</h2>
+                    <p class="pd-p" style="margin-left:0; margin-bottom:30px;">Available when the organisation connects
+                        its WhatsApp Business messaging setup.</p>
+
+                    <div class="pd-wa-card">
+                        <div class="pd-wa-msg">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                                <div style="width:24px; height:24px; background:var(--main-bg); border-radius:50%;">
+                                </div>
+                                <span style="font-weight:700; font-size:14px; color:#000;">ABC Foundation</span>
+                            </div>
+                            <p style="font-size:14px; color:#444; line-height:1.5; margin-bottom:10px;">
+                                Thank you for your contribution of <strong>₹500</strong>. Your payment was successfully
+                                received.<br><br>
+                                Transaction ID: <strong>PSR102938</strong><br><br>
+                                View your contribution and organisation transparency records.
+                            </p>
+                            <div style="border-top:1px solid #eee; padding-top:10px; text-align:center;">
+                                <span style="color:#0ea5e9; font-size:14px; font-weight:600; cursor:pointer;">[ View
+                                    PARDARSHI Account ]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SECTION 7 & 8: TRANSPARENCY DASHBOARD & DOCUMENTS -->
+            <section
+                style="background-color: var(--card-bg); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                <div class="pd-container">
+                    <div class="pd-text-center pd-mb-12">
+                        <h2 class="pd-h2">See Where Contributions Go</h2>
+                        <p class="pd-p">PARDARSHI connects contributions with organisation records so contributors can
+                            understand how funds are being used.</p>
+                    </div>
+
+                    <div class="pd-grid-2" style="align-items:start;">
+                        <!-- Mockup Dashboard -->
+                        <div
+                            style="background:var(--main-bg); padding:30px; border-radius:24px; border:1px solid var(--border-color);">
+                            <h3 style="font-weight:800; margin-bottom:20px; font-size:20px;">ABC FOUNDATION</h3>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:30px;">
+                                <div class="pd-dash-stat" style="background:#eff6ff;">
+                                    <h5 style="color:#1d4ed8;">Total Contributions</h5>
+                                    <p>₹82,450</p>
+                                </div>
+                                <div class="pd-dash-stat" style="background:#fef2f2;">
+                                    <h5 style="color:#b91c1c;">Total Expenses</h5>
+                                    <p>₹31,200</p>
+                                </div>
+                                <div class="pd-dash-stat" style="background:#f0fdf4;">
+                                    <h5 style="color:#15803d;">Remaining</h5>
+                                    <p>₹51,250</p>
+                                </div>
+                            </div>
+
+                            <h4
+                                style="font-weight:700; margin-bottom:15px; color:var(--text-dark); border-bottom:2px solid var(--border-color); padding-bottom:10px;">
+                                Recent Transactions</h4>
+                            <div>
+                                <div class="pd-list-item">
+                                    <div>
+                                        <p style="font-weight:600; color:var(--text-dark);">Books & Materials</p>
+                                        <span
+                                            style="font-size:12px; color:var(--primary); font-weight:600; cursor:pointer;">[View
+                                            Document]</span>
+                                    </div>
+                                    <span style="font-weight:700; color:var(--text-dark);">₹15,000</span>
+                                </div>
+                                <div class="pd-list-item">
+                                    <div>
+                                        <p style="font-weight:600; color:var(--text-dark);">Food Distribution</p>
+                                        <span
+                                            style="font-size:12px; color:var(--primary); font-weight:600; cursor:pointer;">[View
+                                            Proof]</span>
+                                    </div>
+                                    <span style="font-weight:700; color:var(--text-dark);">₹8,500</span>
+                                </div>
+                                <div class="pd-list-item">
+                                    <div>
+                                        <p style="font-weight:600; color:var(--text-dark);">Event Expenses</p>
+                                        <span
+                                            style="font-size:12px; color:var(--primary); font-weight:600; cursor:pointer;">[View
+                                            Document]</span>
+                                    </div>
+                                    <span style="font-weight:700; color:var(--text-dark);">₹7,000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents Text & Cards -->
+                        <div>
+                            <h3 class="pd-h3" style="font-size:24px; margin-bottom:10px;">Documents That Support the
+                                Records</h3>
+                            <p style="color:var(--text-muted); margin-bottom:30px;">Organisations can upload relevant
+                                documents and supporting proofs so contributors can better understand the records.</p>
+
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div
+                                    style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color);">
+                                    <span style="font-weight:600; color:var(--text-dark);"><i
+                                            class="fa-solid fa-file-invoice"
+                                            style="color:var(--secondary); margin-right:8px;"></i> Registration
+                                        Document</span>
+                                    <span
+                                        style="font-size:12px; background:var(--card-bg); padding:5px 10px; border-radius:6px; font-weight:600; border:1px solid var(--border-color);">View</span>
+                                </div>
+                                <div
+                                    style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color);">
+                                    <span style="font-weight:600; color:var(--text-dark);"><i
+                                            class="fa-solid fa-file-invoice-dollar"
+                                            style="color:var(--secondary); margin-right:8px;"></i> Expense Bill</span>
+                                    <span
+                                        style="font-size:12px; background:var(--card-bg); padding:5px 10px; border-radius:6px; font-weight:600; border:1px solid var(--border-color);">View</span>
+                                </div>
+                                <div
+                                    style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color);">
+                                    <span style="font-weight:600; color:var(--text-dark);"><i
+                                            class="fa-solid fa-file-pdf"
+                                            style="color:var(--secondary); margin-right:8px;"></i> Event Document</span>
+                                    <span
+                                        style="font-size:12px; background:var(--card-bg); padding:5px 10px; border-radius:6px; font-weight:600; border:1px solid var(--border-color);">View</span>
+                                </div>
+                                <div
+                                    style="background:var(--main-bg); padding:15px 20px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color);">
+                                    <span style="font-weight:600; color:var(--text-dark);"><i
+                                            class="fa-solid fa-file-lines"
+                                            style="color:var(--secondary); margin-right:8px;"></i> Annual Report</span>
+                                    <span
+                                        style="font-size:12px; background:var(--card-bg); padding:5px 10px; border-radius:6px; font-weight:600; border:1px solid var(--border-color);">View</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 9 & 10: DASHBOARD FEATURES GRID -->
+            <section class="pd-container">
+                <div class="pd-text-center pd-mb-12">
+                    <h2 class="pd-h2">Everything Connected in One Place</h2>
+                </div>
+
+                <div class="pd-grid-4">
+                    <!-- Cards using the required text -->
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-pen-ruler pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">No-Code Form Builder</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Create forms without programming.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-clipboard-question pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Custom Questions</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Add fields according to requirements.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-building-user pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Organisation Profile</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Manage logo, images and description.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-credit-card pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Payment Integration</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Accept via supported methods.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-users pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Contributor Registration</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Maintain contributor information.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-clock-rotate-left pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Contribution History</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Keep connected contribution records.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-money-bill-trend-up pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Expense Records</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Record how organisation funds are used.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-chart-line pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Transaction Tracking</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Maintain financial activity records.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-folder-open pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Documents & Proofs</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Upload supporting documents.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-eye pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Public Transparency</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Give contributors access to records.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-qrcode pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">QR Code Generation</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Generate a printable/shareable QR code.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-link pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Shareable Link</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Give every published page a unique link.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-brands fa-whatsapp pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">WhatsApp Notification</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Send confirmations via connected setup.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-user-shield pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Contributor Account</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Let contributors access their info.</p>
+                    </div>
+                    <div class="pd-card" style="padding:20px;"><i class="fa-solid fa-laptop-mobile pd-icon-box"
+                            style="margin-bottom:10px; width:40px; height:40px; font-size:16px;"></i>
+                        <h4 style="font-weight:700; margin-bottom:5px;">Responsive Design</h4>
+                        <p style="font-size:13px; color:var(--text-muted);">Works on mobile, tablet and desktop.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 11: WHY PARDARSHI -->
+            <section style="background-color: var(--card-bg); border-top: 1px solid var(--border-color);">
+                <div class="pd-container">
+                    <h2 class="pd-h2 pd-text-center pd-mb-12">Why PARDARSHI?</h2>
+                    <div class="pd-grid-4">
+                        <div
+                            style="background:var(--main-bg); padding:30px; border-radius:16px; border:1px solid var(--border-color);">
+                            <i class="fa-solid fa-link"
+                                style="font-size:24px; color:var(--primary); margin-bottom:15px;"></i>
+                            <h3 style="font-weight:700; font-size:18px; margin-bottom:10px; color:var(--text-dark);">
+                                Connected</h3>
+                            <p style="font-size:14px; color:var(--text-muted); line-height:1.5;">Contributions,
+                                contributors and organisation records stay connected.</p>
+                        </div>
+                        <div
+                            style="background:var(--main-bg); padding:30px; border-radius:16px; border:1px solid var(--border-color);">
+                            <i class="fa-solid fa-shield-halved"
+                                style="font-size:24px; color:var(--secondary); margin-bottom:15px;"></i>
+                            <h3 style="font-weight:700; font-size:18px; margin-bottom:10px; color:var(--text-dark);">
+                                Transparent</h3>
+                            <p style="font-size:14px; color:var(--text-muted); line-height:1.5;">Important records,
+                                expenses and supporting documents can be presented clearly.</p>
+                        </div>
+                        <div
+                            style="background:var(--main-bg); padding:30px; border-radius:16px; border:1px solid var(--border-color);">
+                            <i class="fa-solid fa-wand-magic-sparkles"
+                                style="font-size:24px; color:var(--primary); margin-bottom:15px;"></i>
+                            <h3 style="font-weight:700; font-size:18px; margin-bottom:10px; color:var(--text-dark);">
+                                Simple</h3>
+                            <p style="font-size:14px; color:var(--text-muted); line-height:1.5;">Organisations can
+                                create and publish their forms without coding.</p>
+                        </div>
+                        <div
+                            style="background:var(--main-bg); padding:30px; border-radius:16px; border:1px solid var(--border-color);">
+                            <i class="fa-solid fa-universal-access"
+                                style="font-size:24px; color:var(--secondary); margin-bottom:15px;"></i>
+                            <h3 style="font-weight:700; font-size:18px; margin-bottom:10px; color:var(--text-dark);">
+                                Accessible</h3>
+                            <p style="font-size:14px; color:var(--text-muted); line-height:1.5;">A single QR code or
+                                link can connect contributors to the organisation.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 12: FINAL CTA -->
+            <section class="pd-container pd-text-center">
+                <h2 class="pd-h2 pd-mb-4" style="font-size:clamp(2rem, 4vw, 3rem);">Ready to Make Contributions More
+                    Transparent?</h2>
+                <p class="pd-p pd-mb-8">Create your organisation page, share your form and keep your contribution
+                    records connected with transparency.</p>
+                <div class="pd-btn-group" style="margin-top:0;">
+                    <button class="pd-btn pd-btn-primary">Create Organisation</button>
+                    <button class="pd-btn pd-btn-secondary">Learn How It Works</button>
+                </div>
+            </section>
+
+            <!-- FOOTER -->
+            <footer
+                style="background-color: var(--text-dark); color: #94a3b8; padding: 60px 20px 30px 20px; border-top: 1px solid var(--border-color);">
+                <div
+                    style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; md:flex-row; justify-content: space-between; gap: 30px;">
+                    <div style="text-align: center; md:text-left;">
+                        <h2 style="font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 8px;">PARDARSHI</h2>
+                        <p style="font-size: 14px;">Link Contributions with Transparency</p>
+                    </div>
+                    <div
+                        style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 14px; font-weight: 500;">
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">Home</a>
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">How It Works</a>
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">Features</a>
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">About</a>
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">Contact</a>
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">Privacy Policy</a>
+                        <a href="#" style="color: #cbd5e1; text-decoration: none;">Terms</a>
+                    </div>
+                </div>
+                <div
+                    style="max-width: 1200px; margin: 40px auto 0 auto; padding-top: 20px; border-top: 1px solid #334155; text-align: center; font-size: 12px;">
+                    &copy; 2026 PARDARSHI. All rights reserved.
+                </div>
+            </footer>
+
+        </div>
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="bottom-nav-item active"><i class="fa-solid fa-house"></i></a>
+        <!-- Updated to match PARDARSHI requirements -->
+        <a href="forms.html" class="bottom-nav-item"><i class="fa-solid fa-file-lines"></i></a>
+        <button class="mobile-add-btn"><i class="fa-solid fa-plus"></i></button>
+        <a href="transactions.html" class="bottom-nav-item"><i class="fa-solid fa-wallet"></i></a>
+        <!-- Support icon as requested -->
+        <a href="support.html" class="bottom-nav-item"><i class="fa-solid fa-headset"></i></a>
+    </nav>
+
+    <!-- MOBILE DRAWER -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <i class="fa-solid fa-xmark drawer-close" onclick="toggleMobileDrawer()"></i>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <img src="https://ui-avatars.com/api/?name=Alan&background=3b82f6&color=fff&size=100" alt="Profile"
+                style="border-radius: 50%;">
+            <h3 style="margin-top: 15px; color: var(--text-light);">Alan Smith</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">alan@example.com</p>
+            <a href="account.html" style="text-decoration: none;">
+                <button class="add-btn"
+                    style="width: 100%; border-radius: 20px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <i class="fa-solid fa-user"></i> Manage Account
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- Google Translate Initialization Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,hi,mr',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript"
+        src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <!-- UI Interaction Script -->
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchPopup = document.getElementById('searchPopup');
+        const searchContainer = document.getElementById('searchContainer');
+        const searchIcon = document.getElementById('searchIcon');
+
+        // Mobile Search Expansion Logic
+        searchIcon.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                searchContainer.classList.add('mobile-expanded');
+                searchInput.focus();
+            }
+        });
+
+        // Show popup on focus
+        searchInput.addEventListener('focus', () => {
+            searchPopup.classList.add('active');
+        });
+
+        // Hide popup & collapse mobile search when clicking outside
+        document.addEventListener('click', (e) => {
+            const isClickInsideSearch = searchContainer.contains(e.target);
+            const isClickInsidePopup = searchPopup.contains(e.target);
+
+            if (!isClickInsideSearch && !isClickInsidePopup) {
+                searchPopup.classList.remove('active');
+                if (window.innerWidth <= 768) {
+                    searchContainer.classList.remove('mobile-expanded');
+                }
+            }
+        });
+
+        // Mobile Drawer Toggle
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        function toggleMobileDrawer() {
+            mobileDrawer.classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>
