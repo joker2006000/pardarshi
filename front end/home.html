@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
+        <!-- UI css of Sidebar -->
  <link rel="stylesheet" href="style.css">
 </head>
 
@@ -69,28 +70,11 @@
             <div class="mobile-logo">
                 <img src="logo.png" alt="Logo">
             </div>
-
             <div class="header-title">
                 Good Morning, Alan
             </div>
 
-            <div class="search-container" id="searchContainer">
-                <i class="fa-solid fa-magnifying-glass search-icon" id="searchIcon"></i>
-                <input type="text" class="search-bar" id="searchInput" placeholder="Search for data / people...">
-
-                <!-- Search Popup -->
-                <div class="search-popup" id="searchPopup">
-                    <h4>Recent Searches</h4>
-                    <p style="color: var(--text-muted); font-size: 14px;">
-                        <i class="fa-solid fa-person-digging"></i> Search engine currently under development...
-                    </p>
-                </div>
-            </div>
-
-            <div class="header-actions">
-                <div id="google_translate_element" class="desktop-translate"></div>
-                <i class="fa-solid fa-bars hamburger-menu" onclick="toggleMobileDrawer()"></i>
-            </div>
+        
         </header>
 
         <!-- AREA FOR DYNAMIC PAGE CONTENT -->
@@ -125,21 +109,9 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'en,hi,mr',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript"
-        src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <!-- UI Interaction Script -->
+
+    <!-- UI Interaction Script of Sidebar -->
  <script src="structure.js"></script>
 
 </body>

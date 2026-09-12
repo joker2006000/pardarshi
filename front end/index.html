@@ -425,10 +425,91 @@
                 height: 105px; /* Leaves mobile size unchanged */
             }
         }
+
+        /* ========================================================
+           3. MODAL STYLES
+           ======================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5); /* Dark semi-transparent background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 1250px;
+            height: 720px;
+            background: transparent;
+            border-radius: 50px;
+        }
+
+        /* Optimizing Modal exclusively for mobile */
+        @media (max-width: 768px) {
+            .modal-content {
+                height: 90vh; /* Prevents overflow off screen on mobile */
+                width: 95%;
+                border-radius: 20px;
+            }
+            .modal-content iframe {
+                border-radius: 20px !important;
+            }
+        }
+
+        .modal-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 50px;
+            display: block; /* Removes any inline spacing */
+        }
+
+        /* Blurs the background elements when modal is open */
+        body.modal-open .main-wrapper {
+            filter: blur(8px);
+            pointer-events: none; /* Prevents clicking background items */
+            transition: filter 0.3s ease;
+        }
+        
+        /* SPECIFIC FIX: Ensure moving logo stays blurred and goes BEHIND the modal */
+        body.modal-open #dynamic-moving-logo {
+            filter: blur(8px);
+            z-index: 1500 !important; /* Puts it underneath the modal overlay (2000) */
+            pointer-events: none;
+            transition: filter 0.3s ease;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content">
+            <iframe src="login.html?modal=true" id="login-iframe"></iframe>
+        </div>
+    </div>
+
+    <!-- REGISTER MODAL -->
+    <div id="register-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content">
+            <iframe src="register.html?modal=true" id="register-iframe"></iframe>
+        </div>
+    </div>
 
     <!-- MAIN CONTENT WRAPPER -->
     <main class="main-wrapper">
@@ -439,8 +520,8 @@
             <div id="topbar-logo-spot"></div>
 
             <div class="header-actions">
-                <button class="pd-btn pd-btn-secondary" style="padding: 10px 18px; font-size: 14px;">
-                    Already Registered
+                <button id="login-btn" class="pd-btn pd-btn-secondary" style="padding: 10px 18px; font-size: 14px;">
+                    Log-in
                 </button>
             </div>
         </header>
@@ -451,7 +532,7 @@
             <!-- HERO SECTION -->
             <section class="pd-container pd-text-center">
                 
-                <!-- Invisible Placeholder in the Hero (Replaces your old static logo class) -->
+                <!-- Invisible Placeholder in the Hero -->
                 <div id="hero-logo-spot"></div>
 
                 <h1 class="pd-h1 pd-mb-4">Link Contributions with <span class="pd-text-gradient">Transparency</span></h1>
@@ -460,7 +541,8 @@
                     records and share transparent financial information with contributors — all from one platform.</p>
 
                 <div class="pd-btn-group">
-                    <button class="pd-btn pd-btn-primary" onclick="window.location.href='register.html'">Register Your
+                    <!-- Changed inline onclick to call the modal function -->
+                    <button class="pd-btn pd-btn-primary" onclick="openRegisterModal(event)">Register Your
                         Organisation</button>
                     <button class="pd-btn pd-btn-secondary" onclick="document.getElementById('how-it-works').scrollIntoView({behavior: 'smooth'})">Explore How It Works</button>
                 </div>
@@ -916,7 +998,8 @@
                 <p class="pd-p pd-mb-8">Create your organisation page, share your form and keep your contribution
                     records connected with transparency.</p>
                 <div class="pd-btn-group" style="margin-top:0;">
-                    <button class="pd-btn pd-btn-primary" onclick="window.location.href='register.html'">Create Organisation</button>
+                    <!-- Changed inline onclick to call the modal function -->
+                    <button class="pd-btn pd-btn-primary" onclick="openRegisterModal(event)">Create Organisation</button>
                     <button class="pd-btn pd-btn-secondary">Learn How It Works</button>
                 </div>
             </section>
@@ -952,6 +1035,13 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Global function to open the register modal
+        function openRegisterModal(e) {
+            if (e) e.preventDefault();
+            document.getElementById('register-modal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const logo = document.getElementById('dynamic-moving-logo');
             const heroSpot = document.getElementById('hero-logo-spot');
@@ -1032,7 +1122,31 @@
 
             // Brief timeout ensures custom fonts/DOM fully render before plotting positions
             setTimeout(calculatePositions, 100);
+
+            /* ========================================================
+               MODAL JAVASCRIPT SYSTEM 
+               ======================================================== */
+            // Get the login button
+            const loginBtn = document.getElementById('login-btn');
+
+            // Override the default link behavior to open the popup instead
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.getElementById('login-modal').classList.add('active');
+                    document.body.classList.add('modal-open');
+                });
+            }
         });
+
+        // Function to close the modal when clicking outside the box
+        function closeModal(e) {
+            // Check if the user clicked the dark overlay, not the iframe itself
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+                document.body.classList.remove('modal-open');
+            }
+        }
     </script>
 </body>
 
