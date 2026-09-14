@@ -2,6 +2,10 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 
+// Assuming pool and generateToken are imported at the top of your file
+// const pool = require('../config/db');
+// const generateToken = require('../utils/generateToken');
+
 // 1. LOGIN USER
 exports.loginUser = async (req, res) => {
     const { mobile, pass } = req.body;
@@ -11,6 +15,7 @@ exports.loginUser = async (req, res) => {
     }
 
     try {
+        // Step 1: Verify User credentials
         const [users] = await pool.query('SELECT * FROM users WHERE mobile_no = ?', [mobile]);
 
         if (users.length === 0) {
@@ -30,11 +35,43 @@ exports.loginUser = async (req, res) => {
 
         const token = generateToken(user.user_id, user.is_platform_admin);
 
+        // Step 2: Check if user is a member of any organization
+        const [memberships] = await pool.query(
+            `SELECT om.role, om.status as member_status, o.organization_id, o.name as org_name, o.slug 
+             FROM organization_members om
+             JOIN organizations o ON om.organization_id = o.organization_id
+             WHERE om.user_id = ? AND om.status = 'active' AND o.status = 'active'`,
+            [user.user_id]
+        );
+
+        // Case A: User is valid, but NOT a member of any organization
+        if (memberships.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'Login successful. You are not currently a member of any organization.',
+                token,
+                data: { 
+                    userId: user.user_id, 
+                    name: user.name, 
+                    is_admin: user.is_platform_admin,
+                    hasOrganization: false,
+                    organizations: [] 
+                }
+            });
+        }
+
+        // Case B: User is valid AND is a member of an organization
         res.status(200).json({
             success: true,
             message: 'Login successful',
             token,
-            data: { userId: user.user_id, name: user.name, is_admin: user.is_platform_admin }
+            data: { 
+                userId: user.user_id, 
+                name: user.name, 
+                is_admin: user.is_platform_admin,
+                hasOrganization: true,
+                organizations: memberships // Sending array in case they belong to multiple orgs in the future
+            }
         });
     } catch (error) {
         console.error(error);
@@ -42,7 +79,7 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-// 2. REGISTER ORGANIZATION (Combo User + Org)
+// 2. REGISTER ORGANIZATION (Combo User + Org + Member)
 exports.registerOrg = async (req, res) => {
     const connection = await pool.getConnection();
     try {
@@ -54,8 +91,9 @@ exports.registerOrg = async (req, res) => {
             city, district, state, category, type
         } = req.body;
 
-        const profilePicUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        const profilePicUrl = req.file ? req.file.location : null;
 
+        // Check for existing users
         const [existingUsers] = await connection.query(
             'SELECT * FROM users WHERE mobile_no = ? OR email = ?', [mobile_no, email]
         );
@@ -64,23 +102,32 @@ exports.registerOrg = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
 
+        // Insert User
         const [userResult] = await connection.query(
             'INSERT INTO users (name, email, mobile_no, password_hash, profile_pic_url) VALUES (?, ?, ?, ?, ?)',
             [name, email, mobile_no, passwordHash, profilePicUrl]
         );
-
         const newUserId = userResult.insertId;
-        const slug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
 
-        await connection.query(
+        // Generate Slug and Insert Organization
+        const slug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+        const [orgResult] = await connection.query(
             `INSERT INTO organizations 
             (name, slug, email, mobile_no, city, district, state, established_year, category, type, created_by) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [orgName, slug, orgEmail, orgContact, city, district, state, established_year, category, type, newUserId]
         );
+        const newOrgId = orgResult.insertId;
+
+        // NEW: Automatically register this user as the 'owner' of the organization
+        await connection.query(
+            `INSERT INTO organization_members (organization_id, user_id, role, status) 
+             VALUES (?, ?, 'owner', 'active')`,
+            [newOrgId, newUserId]
+        );
 
         await connection.commit();
-        res.status(201).json({ success: true, message: 'Organization registered successfully!' });
+        res.status(201).json({ success: true, message: 'Organization registered successfully and owner assigned!' });
     } catch (error) {
         await connection.rollback();
         console.error('Transaction Error:', error.message);
@@ -94,7 +141,9 @@ exports.registerOrg = async (req, res) => {
 exports.registerMember = async (req, res) => {
     try {
         const { name, mobile, email, password } = req.body;
-        const profilePicUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        
+        // UPDATED: Using req.file.location for S3 URL
+        const profilePicUrl = req.file ? req.file.location : null;
 
         if (!name || !mobile || !password) {
             return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -185,10 +234,7 @@ exports.verifyOtp = async (req, res) => {
     }
 };
 
-
-
-
-// ...PASSWARD RESATE ......................
+// ...PASSWORD RESET ......................
 
 exports.resetPassword = async (req, res) => {
     try {
